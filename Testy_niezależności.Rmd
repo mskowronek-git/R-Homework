@@ -1,0 +1,83 @@
+---
+output: rmarkdown::github_document
+---
+
+```{r}
+library(readxl)
+library(dplyr)
+```
+
+# Zadanie 1
+```{r}
+bael <- read_xlsx('bael.xlsx', sheet='dane')
+bael
+```
+# a)
+```{r}
+wyksz <- bael$WYKSZ
+kat <- bael$KAT
+
+tab <- table(wyksz, kat) # robię tablicę kontyngencji
+
+chisq.test(x=tab) # test chi kwadrat
+chisq.test(x=wyksz, y=kat) # drugi sposób
+
+w <- length(unique(wyksz)) #wynik unique = "1" "3" "4" "2" daje 
+k <- length(unique(kat))
+alfa <- 0.05
+qchisq(1-alfa, (w-1)*(k-1)) #najpierw rząd; liczba stopni swobody; całość to wartość krytyczna # wynik to 12.6, a wartość statystyki testowej to X-squared = 129.21, czyli mieści się
+# Czyli obszar krytyczny jest postaci (12.6, infty), a 129.21 się mieści w  tym przedziale
+```
+# df to stopnie swobody
+Odp. do "chisq.test(x=tab)"
+ Na poziomie istotności 5% skoro p-value < 5%, to są podstawy do odrzucenia hipotezy zerowej na rzecz hipotezy alternatywnej głoszącej, że istnieje współzależność między poziomem wykształcenia a statusem na rynku pracy
+ 
+ 
+ Zad.2/Wykład 7.pdf/ t-studenta
+ a)
+```{r}
+samochody <- read_xlsx('samochody.xlsx')
+samochody <- filter(samochody, Typ=='osobowy')
+
+plot(samochody$Cena, samochody$Moc)
+cor(samochody$Cena, samochody$Moc) #współczynnik korelacji, tutaj 0.85, czyli silna
+
+# teraz test współzależności
+cor.test(samochody$Cena, samochody$Moc) # musimy podać x i y,
+# Na poziomie istotności 5% są podstawy do odrzucenia hipotezy zerowej na rzecz hipotezy alternatywnej głoszącej, że pomiędzy ceną a mocą samochodu występuje współzależność liniowa (przez porównanie do p-value)
+
+# obszar krytyczny
+df <- nrow(samochody) - 2 # nrow pokazuje ile mamy
+alfa <- 0.05
+qt(1-alfa/2, df)
+# wynik to około 1.98, czyli obszar krytyczny to: (-infty, -1.98) U (1.98, infty) i sprawdzialibyśmy czy t (tutaj to 17.294) wpada do obszaru krytycznego, jeśli tak to odrzucamy hipotezę zerową
+
+```
+
+
+
+
+```{r}
+# zad.2/ Wykład 7/ d) Przyjmując poziom istotności 0.05 zweryfikuj, czy pomiędzy szerokością a długościa samochodu osobowego wystepuje dodatnia współzależność liniowa
+
+# H1: rho>0
+cor.test(samochody$Szerokosc, samochody$Dlugosc, alternative='greater')
+
+qt(1-alfa, n-2) #wartość krytyczna
+
+#obszar krytyczny: (1.658, infty)
+
+# Na poziomie istotności 5% są podstawy do odrzucenia hipotezy zerowej na rzecz hipotezy alternatywnej głoszącej, że pomiędzy szerokością a długością samochodu występuje dodatnia współzależność liniowa
+
+```
+```{r}
+# Macierz korelacji
+
+# samochody_ilosciowe <- select(samochody, Cena, Pojemnosc_silnika, Moc, Rozstaw_osi) # jeden sposób na to
+
+samochody_ilosciowe <- select_if(samochody, is.numeric)
+samochody_ilosciowe
+
+cor(samochody_ilosciowe)
+```
+ 

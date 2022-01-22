@@ -1,0 +1,138 @@
+
+---
+output: rmarkdown::github_document
+---
+
+
+```{r}
+library(readxl)
+library(dplyr)
+library(DescTools)
+library(ggplot2)
+```
+
+#Zadanie1
+```{r}
+dane1 <- read_xlsx('Dane_testy_zgodnosci.xlsx', sheet='Zad 1') #wczytujemy plik excela i podajemy który arkusz, musi być obiektem, więc przypisujemy do dane1
+dane1
+class(dane1) # sprawdzanie typu obiektu
+
+pr1 <- dane1$zachodniopomorskie # wartości pierwszej kolumny
+pr2 <- dane1$lubuskie # próba druga
+
+na.omit(pr2)
+is.na(pr2)
+
+pr2 <- pr2[!is.na(pr2)]
+pr2
+```
+```{r}
+pr.df1 <- data.frame(nawozy=pr1, woj='zach')
+pr.df1
+
+pr.df2 <- data.frame(nawozy=pr2, woj='lub')
+pr.df2
+
+pr.df <- rbind(pr.df1, pr.df2) #łączymy wierszami
+pr.df
+
+pr.df <- arrange(pr.df, nawozy)
+pr.df$woj # mamy 9 serii tych samych woj
+```
+
+statystyka testowa (liczba serii) Unm: 9
+wartość krytyczna: 6
+pbszar krytyczny: (-Inf, 6] # -nieskończoność do 6 zamknięte
+9 się nie mieści w przedziale
+Na poziomie istotności 5% nie ma podstaw do odrzucenia hipotezy zerowej głoszącej, że rozkład wykorzystania nawozu w obu województwach jest taki sam.
+
+```{r}
+RunsTest(x = pr1, y=pr2) # prz3eprowadza test
+```
+RUNS = LICZBA serii
+m i n to liczebnośc próby
+Nie ma podstaw do odrzucenia hipotezy zerowej, bo p-value jest większe od poziomu istotności?
+
+
+
+Test Kolmogorova-Smirnova
+Zadanie 3/testy zgodności
+```{r}
+dane <- read_xlsx('grudzien1.xlsx')
+pr <- dane$`sprzedaz`
+ks.test(pr,'pnorm',mean=mean(pr), sd=sd(pr))
+
+
+
+ks.test(pr,'pnorm',mean=mean(pr), sd=sqrt((length(pr)-1)/length(pr))*sd(pr))
+```
+
+
+
+```{r}
+dane <- read_xlsx('grudzien1.xlsx')
+
+pr <- dane$`sprzedaz`
+
+test <- ks.test(x=pr, y=pnorm)
+test
+
+```
+
+```{r}
+dane3 <- read_xlsx('Dane_testy_zgodnosci.xlsx', sheet='Zad 3') # w opisie po prawej environment jest info, że mamy 42 obserwacje i 2 kolumny
+
+pr1 <- dane3$`partia 1` # w celu odwołania się do kolumny dajemy znak $
+pr2 <- dane3$`parta 2`
+
+```
+
+```{r}
+# aby skorzystać z ggplot2, żeby zrobić wykres, trzeba przygotować dane ggplot(df, aes(x, colour = g)) + stat_ecdf()
+
+df1 <- data.frame(wiek=pr1, partia='1')
+df1
+
+df2 <- data.frame(wiek=pr2, partia='2')
+df2
+
+df <- rbind(df1, df2) #łączymy wierszami
+df
+
+ggplot(df, aes(wiek, colour = partia)) + stat_ecdf() 
+
+# aes i dalej mówi nam do czego służy nam to, x oznacza które kolumny będą wizualizowane, dla której kolumny będziemy przedstawiac dystrybuantę, a colour określa co kolorujemy, a stat_ecdf mówi 
+
+# interpretacja, np. że 25% populacji ma wiek mniejszy od 40
+```
+
+```{r}
+test <- ks.test(x=pr1, y=pr2)  #czyli kołmogorov smirnov
+# interpretacja wyniku: 
+# p-value > poziom istotności -> na poziomie istotności 5% nie ma podstaw do odrzucenia hipotezy zerowej głoszacej, że rozkłady wieku wyborców obu partii są takie same
+# wartośc D to największa różnica poziomu między dwoma naszymi dystrybuantami, tutaj to ~`20%
+test
+```
+c.d.
+policzymy ze wzorów
+```{r}
+D <- as.numeric(test$statistic) # robimy też z tego numeric, bo patrz linijka 97
+D
+n1 <- length(pr1)
+n2 <- length(pr2)
+n <- n1*n2/(n1+n2)
+lambda <- D*sqrt(n)
+lambda # D dalej się pojawia, bo D to obiekt nazwany
+```
+obszar krytyczny: (1,36 (wiemy to z tablic, z których odczytujemy wartość lambdy na podstawie 1-poziom istotności) ; infinity) -> Na poziomie istotności 5% nie ma podstawe do odrzucenia hipotezy głoszącej, że ... (czyli nasza lambda 0.8728716 nie wpada w przedział (1,36 ; infinity))
+
+# Zadanie 3 b)
+```{r}
+ks.test(x=pr1, y='pnorm', mean=45, sd=10)
+```
+Przyjmując poziom istotności 5% nie ma podstaw do odrzucenia hipotezy zerowej głoszącej, że wiek wyborców partii 1. ma rozkład normalny
+
+```{r}
+
+```
+

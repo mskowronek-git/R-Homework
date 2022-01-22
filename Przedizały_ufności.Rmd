@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: rmarkdown::github_document
+---
+
+Wczytywanie pakietów
+```{r}
+library(DescTools)
+library(binom)
+library(samplingbook)
+```
+
+
+Zadanie 1.1
+```{r}
+# 1 - alfa = 0.9
+alfa <- 0.1 # aby przedział ufności był większy to alfa musi być mniejsza
+
+n <- 200
+w <- 10
+
+f <- w/n # frakcja z próby
+
+z <- qnorm(1-alfa/2) # kwartyl
+
+b <- z*sqrt((f*(1-f))/n) # błąd
+
+f-b # lewy koniec
+f+b # prawy koniec
+
+# to nasz przedział ufności
+
+#Z prawdopodobieństwem 0.9 przedział (0.025; 0.075) zawiera prawdziwą frakcję uszkodzonych towarów w całej partii.
+```
+
+Zadanie 1.7
+```{r}
+alfa <- 0.05
+
+n <- 100
+m <- 3500
+s <- 800 # nie z populacji a z próby, więc wzór z brau odchylenia z populacji
+
+t <- qt(1 - alfa/2, df = n-1)
+t
+
+b <- t*s/sqrt(n) # błąd oszacowania
+
+m-b # lewy koniec przedziału
+m+b # prawy koniec przedziału
+
+# z prawdopodobieństwem 95% przeciętne wynagrodzenie absolwentów jest objęte przedziałem (3341, 3658)
+
+
+```
+
+Obliczanie przedziału ufności gotową funkcją z R
+1. Utworzymy populacje
+2. Wylosujemy próbę
+3. Skonstruujemy przedział ufności
+```{r}
+# 1.
+set.seed(123) # determinuje generowanie tych samych liczb, niezależnie od np. komputera
+pop <- rnorm(1000, mean=185, sd=10)
+mean(pop)
+#sd = odchylenie standardowe, mean = średnia
+hist(pop)
+
+# 2.
+pr <- sample(pop, size=100) #próbę losujemy, losowanie bez zwracania
+mean(pr) # śreednia # oszacowanie punktowe
+
+# 3.
+MeanCI(pr) # pokazuje granice przedziału ufności
+MeanCI(pr, conf.level=0.99) # daliśmy wyższy przeział ufności, bo 0.99
+```
+Z prawdopodobieństwem 99% wartość oczekiwana w badanej populacji mieści się w przedziale 183,2 i 188,1
+
+
+
+Zadanie z przedziału ufności dla frakcji \
+```{r}
+# 1.
+pr.f <- pr>190 # próba dla frakcji
+table(pr.f) # wypisuje ile mamy konkretnych booleanskch wartości
+w <- sum(pr.f==TRUE)
+w
+w <- sum(pr.f)
+w
+n <- length(pr.f)
+
+binom.confint(w, n, conf.level = 0.99, )
+
+
+```
+
+# Zadanie 2.3
+```{r}
+alfa <- 0.05
+d <- 0.02
+p <- 0.6
+
+z <- qnorm(1-alfa/2)
+
+# p jest znane z poprzedniego sondażu
+z^2*p*(1-p)/d^2
+
+# gdyby p nie było znane
+z^2/(4*d^2)
+```
+
+Aby z prawdopodobieństwem
+
+```{r}
+sample.size.mean.s <- function(e, s, n0, level=0.99) #błąd, odchylenie standardowe z próby, wielkość próby pilotazowej, poziom ufności (domyslnie 0.95)
+{
+  alfa <- 1-level
+  t <- qt(1-alfa/2, n0-1) #kwantyl rozkładu t-studenta
+  n <- t^2 * s^2 / d^2
+  ceiling(n) #na końcu n, aby funkcja zwracała n z zaokrągleniem w górę
+}
+```
+
+```{r}
+sample.size.mean.s(e=5, s=20, n0=25, level=0.99)
+```
+
+
+# Zadanie 2.9
+```{r}
+alfa <- 0.01
+d <- 5
+n0 <- 25
+s <- 20
+
+t <- qt(1 - alfa/2, n0 - 1)
+
+t^2*s^2/d^2
+
+#tę funkcję stosuje się w przypadku znanego odchylenia standardowego z populacji, stąd otrzymany wynik nie jest prawidłowy
+sample.size.mean(e=5, S=20, level=0.99)
+```
+Aby z prawdopodobieństwem 99% błąd oszacowania przeciętnej wagi cytryny w całej partii nie przekroczył 5g należy wylosować do próby co najmniej 126 cytryn.
+
+
+# Zadanie 2.3
+
+```{r}
+sample.size.prop(e=0.02, P=0.6,  level=0.95)
+```
+

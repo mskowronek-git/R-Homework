@@ -1,0 +1,80 @@
+---
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+  rmarkdown::github_document
+---
+
+Zad 1.1
+```{r}
+pr <- c(3500, 3200, 3000, 4000, 3300, 3800, 4200, 3400)
+
+# m - wartość oczekiwana w populacji (przeciętne wynagrodzenie pracowników w całym przedsiębiorstwie)
+# m0 - wartość hipotetyczna do której porównujemy
+m0 <- 3000
+
+# 1. Konstruujemy zestaw hipotez
+# H0: m=3000 // Hipoteza zerowa
+# H1: m>3000
+
+# 2. Wyznaczamy wartość statystyki testowej
+n <- length(pr)
+sr <- mean(pr)
+s <- sd(pr)
+
+t <- (sr - m0)/s*sqrt(n)
+t
+
+# 3. Wyznaczamy wartość krytyczną
+alfa <- 0.05
+kryt <- qt(1-alfa,n-1) # qt to rozkład t-studenta
+kryt
+
+# t > kryt, czyli odrzucamy H0
+
+# 4. Weryfikacja hipotezy zerowej
+#Statystyka testowa jest większa niż wartość krytyczna, stąd odrzucamy hipotezę zerową na rzecz hipotezy alternatywnej, głoszącej, że przeciętne wynagrodzenie pracowników przedsiębiorstwa jest większe niż 3000
+
+#alternatywna metoda weryfikacji hipotezy P wartość
+# 3b
+p <- 1-pt(t, n-1) # pt to rozkład t studenta # p - prawdopodobieństwo popełnienia błędu 1 rodzaju
+p
+
+# p-value < alfa, stąd odrzucamy H0
+
+```
+
+```{r}
+t.test(x=pr, alternative='greater', mu=m0, conf.level=0.95) # t pochodzi od rozkładu t studenta, pr = próba, dla mu podajemy wartość hipotetyczną, level = poziom istotności # dla test średniej z jednej populacji
+```
+
+Zad 1.5/Z05
+
+```{r}
+#H0: m=2.5
+#H1: m != 2.5
+pr <- c(2.5, 2.6, 2.4, 2.5, 2.7, 2.4, 2.8)
+m0 <- 2.5
+
+t.test(x=pr, alternative='two.sided', mu=m0, conf.level=0.95)
+
+# Nie ma podstaw do odrzucenia hipotezy zerowej, głoszącej, że średnica toczonych detali jest równa 2.5 ( bo p-value > 0.05)
+```
+
+```{r}
+# m1 - 
+```
+
+Zadanie 2.3
+
+```{r}
+# m1 - przeciętna liczba spalonych papierosów
+# m2 - przeciętna liczba spalonych papierosów wśród mężczyzn
+
+# H0 - m1=m2
+# H1 m1>m2
+
+
+```
+
